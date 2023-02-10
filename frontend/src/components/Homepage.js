@@ -14,12 +14,12 @@ const Homepage = () => {
             {
             title: "Application Grant",
             target: 1000,
-            raised: 400
+            raised: 800
             },
             {
             title: "Research equipment",
             target: 2000,
-            raised: 800
+            raised: 400
             },
             {
             title: "Transportation",

@@ -78,3 +78,14 @@
   color: #fff;
   transform: translateY(-2px);
 }
+
+.investButton {
+  width:20px;
+  font-size: 17px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left:15px;
+  margin-bottom:25px;
+}

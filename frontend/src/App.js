@@ -776,7 +776,7 @@ function App() {
       <div>
       { currentWallet != null ? 
       <div>
-      <button onClick={fn}>Get Projects</button>
+      {/* <button onClick={fn}>Get Projects</button> */}
       <Routes>
        <Route path="/" element={<Landing />} />
        <Route path="/Homepage" element={<Homepage />} />

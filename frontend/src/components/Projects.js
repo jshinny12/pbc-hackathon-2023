@@ -7,17 +7,21 @@ const Card = ({ image, name, goal, raised, isComplete, subtasks }) => {
   const progressPercent = (Number(raised) / Number(goal)) * 100;
 
   const Subtask = ({ title, target, raised }) => (
-    <div>
-      <h4>{title}</h4>
-      <div style={progressBarStyles}>
-        <div
-          style={{
-            ...progressStyles,
-            width: `${(raised / target) * 100}%`
-          }}/>
+    <div style={{display: "flex", alignItems: "center", justifyContent: "flex-end", marginTop:"-20px"}}>
+      <div>
+        <h4>{title}</h4>
+        <div style={{...progressBarStyles, width: "180px"}}>
+          <div
+            style={{
+              ...progressStyles,
+              width: `${(raised / target) * 100}%`
+            }}/>
+        </div>
+        <p>${raised} / ${target}</p>
       </div>
-      <p>${raised} / ${target}</p>
+      <button className="investButton">Invest</button>
     </div>
+    
   );
 
   const SubtaskList = ({ subtasks }) => (
@@ -42,8 +46,8 @@ const Card = ({ image, name, goal, raised, isComplete, subtasks }) => {
         <img src={image} alt={name} style={cardImageStyles} />
         <p style={cardTextStyles}>{isComplete ? 'Complete' : 'On Going'}</p>
         <h3 style={cardTitleStyles}>{name}</h3>
-        <p style={cardTextStyles}>Fundraising Goal: ${goal}</p>
         <p style={cardTextStyles}>Fundraising Raised: ${raised}</p>
+        <p style={cardTextStyles}>Fundraising Goal: ${goal}</p>
         <div style={progressBarStyles}>
           <div
             style={{
@@ -53,8 +57,14 @@ const Card = ({ image, name, goal, raised, isComplete, subtasks }) => {
         </div>
         <button style={donateButtonStyles} onClick={toggleSubtasks}>
         {showSubtasks ? 'Collapse' : 'Expand'}
-      </button>
-      {showSubtasks && <SubtaskList subtasks={subtasks} />}
+        </button>
+        {showSubtasks && (
+          <div>
+            <hr style={{ marginBottom:"-5px",marginTop:"20px", border: "1px solid black", width: "80%" }} />
+            <h3 style={{marginBottom:"5px"}}>Sub-goals</h3>
+            <SubtaskList subtasks={subtasks} />
+          </div>
+        )}
       </div>
     );
 };

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Container, Row, Col, Button } from "react-bootstrap";
 import "./Landing.css";
 
+
 const Landing = () => {
   
   return (
@@ -11,9 +12,11 @@ const Landing = () => {
           <h1 className="text-center one-liner">
             A Place to Find and Fund Projects
           </h1>
+          <a href = '/Homepage'>
           <Button variant="primary" size="lg" block>
             Let's Begin
           </Button>
+          </a>
         </Col>
       </Row>
     </Container>

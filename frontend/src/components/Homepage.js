@@ -29,7 +29,7 @@ const Homepage = () => {
         ],
         },
         {
-          image: 'https://via.placeholder.com/300x200',
+          image: 'https://img.hani.co.kr/imgdb/resize/2015/1016/144487802343_20151016.JPG',
           name: 'Building a boat',
           goal: 6000,
           raised: 4000,

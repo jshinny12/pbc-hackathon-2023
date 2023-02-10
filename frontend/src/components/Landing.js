@@ -1,9 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Container, Row, Col, Button } from "react-bootstrap";
 import "./Landing.css";
 
-
 const Landing = () => {
+  
   return (
     <Container className="landing-page">
       <Row className="justify-content-center">

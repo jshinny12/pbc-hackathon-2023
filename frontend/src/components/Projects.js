@@ -1,14 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const Card = ({ image, name, goal, raised, isComplete, subtasks }) => {
-  console.log(subtasks)
+  const [cardHeight, setCardHeight] = useState(450);
+  const [showSubtasks, setShowSubtasks] = useState(false);
+
   const progressPercent = (Number(raised) / Number(goal)) * 100;
 
   const Subtask = ({ title, target, raised }) => (
     <div>
-      <p>Subtask Title: {title}</p>
-      <p>Target: {target}</p>
-      <p>Raised: {raised}</p>
+      <h4>{title}</h4>
+      <div style={progressBarStyles}>
+        <div
+          style={{
+            ...progressStyles,
+            width: `${(raised / target) * 100}%`
+          }}/>
+      </div>
+      <p>${raised} / ${target}</p>
     </div>
   );
 
@@ -18,25 +26,35 @@ const Card = ({ image, name, goal, raised, isComplete, subtasks }) => {
         <Subtask key={key} title={subtask.title} target={subtask.target} raised={subtask.raised} />
       ))}
     </div>
-  );
+    );
+
+    const toggleSubtasks = () => {
+      setShowSubtasks(!showSubtasks);
+      if (showSubtasks) {
+        setCardHeight(450);
+      } else {
+        setCardHeight(450 + Object.keys(subtasks).length * 120);
+      }
+    };
+
     return (
-      <div style={cardStyles}>
+      <div style={{ ...cardStyles, height: cardHeight }}>
         <img src={image} alt={name} style={cardImageStyles} />
         <p style={cardTextStyles}>{isComplete ? 'Complete' : 'On Going'}</p>
         <h3 style={cardTitleStyles}>{name}</h3>
         <p style={cardTextStyles}>Fundraising Goal: ${goal}</p>
         <p style={cardTextStyles}>Fundraising Raised: ${raised}</p>
         <div style={progressBarStyles}>
-        <div
-          style={{
-            ...progressStyles,
-            width: `${progressPercent}%`
-          }}/>
+          <div
+            style={{
+              ...progressStyles,
+              width: `${progressPercent}%`
+            }}/>
         </div>
-        <button style={donateButtonStyles}>Donate</button>
-        <div>
-          <SubtaskList subtasks={subtasks} />
-        </div>
+        <button style={donateButtonStyles} onClick={toggleSubtasks}>
+        {showSubtasks ? 'Collapse' : 'Expand'}
+      </button>
+      {showSubtasks && <SubtaskList subtasks={subtasks} />}
       </div>
     );
 };
@@ -84,12 +102,12 @@ const cardImageStyles = {
 
 const cardTitleStyles = {
   fontSize: 20,
-  marginTop: 20
+  marginTop: 3
 };
 
 const cardTextStyles = {
   fontSize: 16,
-  marginTop: 10,
+  marginTop: 5,
   textAlign: 'center'
 };
 

@@ -5,7 +5,7 @@ const Homepage = () => {
 
     const cards = [
         {
-          image: 'https://research.umich.edu/wp-content/uploads/2021/08/coronavirus.png',
+          image: 'https://www.pennmedicine.org/news/-/media/images/pr%20news/news/2022/april/covid19%20dna.ashx',
           name: 'Covid Research',
           goal: 5000,
           raised: 2000,
@@ -38,18 +38,13 @@ const Homepage = () => {
             {
               title: "Purchasing materials",
               target: 3000,
-              raised: 1500
-            },
-            {
-              title: "Commerical license",
-              target: 2000,
               raised: 2000
             },
             {
-              title: "Transportation",
-              target: 1000,
-              raised: 500
-            }
+              title: "Commerical license",
+              target: 3000,
+              raised: 2000
+            },
           ],
     }
     ];

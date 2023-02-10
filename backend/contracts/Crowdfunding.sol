@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 contract Crowdfunding {
@@ -14,6 +15,7 @@ contract Crowdfunding {
     }
 
     struct Task {
+        string title;
         uint256 taskId;
         uint256 taskAmount;
         uint256 taskAmountRaised;
@@ -82,12 +84,13 @@ contract Crowdfunding {
         campaignCount++;
     }
 
-    function createTask(uint campaignID, uint256 _taskAmount) public {
-        require(campaignID > 0 && campaignID <= campaignCount, "Campaign not found.");
+    function createTask(string memory _title, uint campaignID, uint256 _taskAmount) public {
+        require(campaignID >= 0 && campaignID <= campaignCount, "Campaign not found.");
         Campaign storage campaign = campaigns[campaignID];
         require(msg.sender == campaign.owner, "Only the campaign owner can create tasks.");
 
         Task memory newTask = Task({
+            title: _title,
             taskId: campaign.totalTasks + 1,
             taskAmount: _taskAmount,
             taskAmountRaised: 0,
@@ -99,7 +102,7 @@ contract Crowdfunding {
     }
 
     function addTaskProgress(uint campaignId, uint taskId, string memory _image, string memory _text) public {
-        require(campaignId > 0 && campaignId <= campaignCount, "Campaign not found.");
+        require(campaignId >= 0 && campaignId <= campaignCount, "Campaign not found.");
         Campaign storage campaign = campaigns[campaignId];
         require(msg.sender == campaign.owner, "Only the campaign owner can add task progress.");
 
@@ -112,7 +115,7 @@ contract Crowdfunding {
 
     // create a close campaign function that can only be called by the campaign owner
     function closeCampaign(uint256 campaignId) public {
-        require(campaignId > 0 && campaignId <= campaignCount, "Campaign not found.");
+        require(campaignId >= 0 && campaignId <= campaignCount, "Campaign not found.");
         Campaign storage campaign = campaigns[campaignId];
         require(msg.sender == campaign.owner, "Only the campaign owner can close the campaign.");
         require(campaign.amountRaised >= campaign.goal, "Campaign goal has not been reached.");
@@ -122,7 +125,7 @@ contract Crowdfunding {
 
     // create a close task function that can only be called by the campaign owner
     function closeTask(uint256 campaignId, uint256 taskId) public {
-        require(campaignId > 0 && campaignId <= campaignCount, "Campaign not found.");
+        require(campaignId >= 0 && campaignId <= campaignCount, "Campaign not found.");
         Campaign storage campaign = campaigns[campaignId];
         require(msg.sender == campaign.owner, "Only the campaign owner can close the task.");
         require(taskId > 0 && taskId <= campaign.totalTasks, "Task not found.");
@@ -132,12 +135,21 @@ contract Crowdfunding {
         task.isComplete = true;
     }
 
+    function withdrawFromCampaign(uint256 campaignId) public payable {
+        require(campaignId >= 0 && campaignId <= campaignCount, "Campaign not found.");
+        Campaign storage campaign = campaigns[campaignId];
+        require(msg.sender == campaign.owner, "Only the campaign owner can withdraw funds.");
+        require(campaign.isComplete == true, "Campaign is not complete.");
 
+        uint256 amount = campaign.amountRaised;
+        campaign.owner.transfer(amount);
+    }
 
-    function contribute(uint campaignID, uint taskID, uint256 amount) public payable {
-        require(campaignID > 0 && campaignID <= campaignCount, "Campaign not found.");
+    function contribute(uint campaignID, uint taskID) public payable {
+        uint256 amount = msg.value;
+        require(campaignID >= 0 && campaignID <= campaignCount, "Campaign not found.");
         Campaign storage campaign = campaigns[campaignID];
-                    require(amount > 0, "Contribution must be greater than zero.");
+        require(amount > 0, "Contribution must be greater than zero.");
         require(campaign.isComplete == false, "Campaign is complete");
 
         if (taskID == 0) {
@@ -148,9 +160,8 @@ contract Crowdfunding {
             campaignContributions[campaignID][msg.sender] += amount;
             userToCampaignId[msg.sender].push(campaignID);
 
-            campaign.owner.transfer(amount);
-
             emit FundTransfer(campaignID, msg.sender, amount, campaign.amountRaised);
+
 
         } else {
             require(taskID > 0 && taskID <= campaign.totalTasks, "Task not found.");
@@ -165,10 +176,6 @@ contract Crowdfunding {
             taskContributions[campaignID][taskID][msg.sender] += amount;
             userToCampaignId[msg.sender].push(campaignID);
             userToTaskId[msg.sender][campaignID].push(taskID);
-
-            // send amount from sender to task owner
-
-            campaign.owner.transfer(amount);
 
             emit FundTransfer(campaignID, msg.sender, amount, task.taskAmountRaised);
             if (task.taskAmountRaised >= task.taskAmount) {
@@ -185,22 +192,22 @@ contract Crowdfunding {
 
     // ***** GETTER FUNCTIONS *****
 
-    function getCampaign(uint campaignID) public view returns (address, uint256, uint256, uint256, bool) {
-        require(campaignID > 0 && campaignID <= campaignCount, "Campaign not found.");
+    function getCampaign(uint campaignID) external view returns (address, string memory, uint256, uint256, uint256, bool) {
+        require(campaignID >= 0 && campaignID <= campaignCount, "Campaign not found.");
         Campaign storage campaign = campaigns[campaignID];
-        return (campaign.owner, campaign.goal, campaign.amountRaised, campaign.totalTasks, campaign.isComplete);
+        return (campaign.owner, campaign.name, campaign.goal, campaign.amountRaised, campaign.totalTasks, campaign.isComplete);
     }
 
-    function getTask(uint campaignID, uint taskID) public view returns (uint256, uint256, bool) {
-        require(campaignID > 0 && campaignID <= campaignCount, "Campaign not found.");
+    function getTask(uint campaignID, uint taskID) external view returns (string memory, uint256, uint256, bool) {
+        require(campaignID >= 0 && campaignID <= campaignCount, "Campaign not found.");
         Campaign storage campaign = campaigns[campaignID];
-        require(taskID > 0 && taskID <= campaign.totalTasks, "Task not found.");
+        require(taskID >= 0 && taskID <= campaign.totalTasks, "Task not found.");
         Task storage task = campaignTasks[campaignID][taskID];
-        return (task.taskAmount, task.taskAmountRaised, task.isComplete);
+        return (task.title, task.taskAmount, task.taskAmountRaised, task.isComplete);
         
     }
 
-    function getCampaignIds() public view returns (uint256[] memory) {
+    function getCampaignIds() external view returns (uint256[] memory) {
         uint256[] memory allCampaigns = new uint256[](campaignCount);
         
         for (uint i = 0; i < campaignCount; i++) {
@@ -210,8 +217,8 @@ contract Crowdfunding {
         return allCampaigns;
     }
 
-    function getTaskIds(uint campaignID) public view returns (uint256[] memory) {
-        require(campaignID > 0 && campaignID <= campaignCount, "Campaign not found.");
+    function getTaskIds(uint campaignID) external view returns (uint256[] memory) {
+        require(campaignID >= 0 && campaignID <= campaignCount, "Campaign not found.");
         Campaign storage campaign = campaigns[campaignID];
 
         uint256[] memory allTasks = new uint256[](campaign.totalTasks);
@@ -224,25 +231,25 @@ contract Crowdfunding {
     }
 
     // function to get list of campaigns for a user
-    function getUserCampaigns(address user) public view returns (uint256[] memory) {
+    function getUserCampaigns(address user) external view returns (uint256[] memory) {
         return userToCampaignId[user];
     }
 
     // function to get list of tasks for a user's campaign
-    function getUserTasks(address user, uint campaignID) public view returns (uint256[] memory) {
+    function getUserTasks(address user, uint campaignID) external view returns (uint256[] memory) {
         return userToTaskId[user][campaignID];
     }
 
-    function getUserContributionByCampaign(address user, uint256 campaignId) public view returns (uint256 ) {
+    function getUserContributionByCampaign(address user, uint256 campaignId) external view returns (uint256 ) {
         return campaignContributions[campaignId][user];
     }
 
-    function getUserContributionByTask(address user, uint256 campaignId, uint256 taskId) public view returns (uint256) {
+    function getUserContributionByTask(address user, uint256 campaignId, uint256 taskId) external view returns (uint256) {
         return taskContributions[campaignId][taskId][user];
     }
 
-    function getCampaignCount() public view returns (uint256) {
+    function getCampaignCount() external view returns (uint256) {
         return campaignCount;
     }
-    
+
 }
